@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" media="screen" href="main.css">
+    <script src="main.js"></script>
+    <style>
+        #container {
+            float: right;
+            margin: 20px;
+        }
+        .wrapper{
+            width: 90%;
+            margin: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrapper">
+        <div id="container" style="width:800px;height:300px;border:1px solid grey"></div>
+        <h1>List of all users</h1>
+        <ol id="list">
+        </ol>
+    </div>
+
+    <script src="node_modules/monaco-editor/min/vs/loader.js"></script>
+    <script>
+        const listHandle = document.getElementById('list')
+
+        if (localStorage.getItem('users')) {
+            let users = JSON.parse(localStorage.getItem('users'))
+
+            let value = {
+                value: '',
+                language: 'javascript'
+            }
+            require.config({ paths: { 'vs': 'node_modules/monaco-editor/min/vs' } });
+            require(['vs/editor/editor.main'], function () {
+                editor = monaco.editor.create(document.getElementById('container'), value);
+                users.forEach(element => {
+                    const li = document.createElement('li')
+                    li.textContent = `${element.name}`
+                    li.addEventListener('click', function () {
+                        let delay = 0
+                        element.data.forEach((ele, index) => {
+                            delay += element.time[index];
+                            setTimeout(function () { putChar(ele) }, delay)
+                        });
+                    })
+                    listHandle.appendChild(li)
+                })
+                function putChar(element) {
+                    editor.executeEdits("my-source", [element])
+                }
+            })
+        }
+        else {
+            listHandle.innerHTML = '<li>Empty list</li>'
+        }
+    </script>
+</body>
+
+</html>

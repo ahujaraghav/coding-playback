@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Championship</title>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+	<link href='http://fonts.googleapis.com/css?family=Nunito:400,300' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" type="text/css" media="screen" href="css/main.css">
+</head>
+
+<body>
+
+	<div class="wrapper">
+		<h2 class="heading">Coding Championship</h2>
+		<div id="container" style="width:800px;height:300px;border:1px solid grey"></div>
+		<button id="stop" class="execute">Execute</button>
+		<p>user: <span id="name"></span></p>
+	</div>
+
+	<!-- OR ANY OTHER AMD LOADER HERE INSTEAD OF loader.js -->
+	<script src="node_modules/monaco-editor/min/vs/loader.js"></script>
+	<!-- <script src="js/monaco.js"></script> -->
+	<script>
+		let name = prompt("Enter your name")
+		const tempData = []
+		const fetch = []
+		const timeData = []
+		let finalData
+		let editor
+		let localData = []
+		const stopHandle = document.getElementById('stop')
+		const startHandle = document.getElementById('start')
+		const nameHandle = document.getElementById('name')
+
+		nameHandle.textContent = name;
+
+		if(localStorage.getItem('users')){
+			localData = JSON.parse(localStorage.getItem('users'))
+		}
+
+		let value = {
+			value: '// type your code below',
+			// [
+			// 	'function x() {',
+			// 	'\tconsole.log("Hello world!");',
+			// 	'}'
+			// ].join('\n'),
+			language: 'javascript'
+		}
+		require.config({ paths: { 'vs': 'node_modules/monaco-editor/min/vs' } });
+		require(['vs/editor/editor.main'], function () {
+			editor = monaco.editor.create(document.getElementById('container'), value);
+			editor.onDidChangeModelContent(function (response) {
+				tempData.push(response.changes[0])
+				timeData.push(new Date())
+			})
+
+			// startHandle.addEventListener('click', function () {
+			// 	let delay
+			// 	finalData.forEach((element, index) => {
+			// 		if (index == 0) {
+			// 			delay = 0
+			// 		} else {
+			// 			delay += timeData[index] - timeData[index - 1]
+			// 		}
+			// 		setTimeout(function () { putChar(element) }, delay)
+			// 	});
+			// })
+
+			// function putChar(element) {
+			// 	editor.executeEdits("my-source", [element])
+			// }
+
+			stopHandle.addEventListener('click', function () {
+				finalData = tempData.splice(0)
+				let differenceTime = []
+				timeData.forEach((time, index)=>{
+					if(index==0){
+						differenceTime.push(0)
+					}
+					else{
+						differenceTime.push(timeData[index]-timeData[index-1])
+					}
+				})
+				localData.push({name:name ,data:finalData, time:differenceTime})
+				localStorage.setItem('users', JSON.stringify(localData))
+				editor._domElement.style.color = "red"
+				editor._domElement.textContent = "  Thank you for your submission."
+				stopHandle.style.visibility = "hidden"
+				window.location.replace('./admin.html')
+			})
+		});
+
+	</script>
+</body>
+
+</html>
